@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+<title>HideU Calculator Lock 3D</title>
+<style>
+:root{
+  --bg:#050816;--panel:#0b1020;--glass:rgba(255,255,255,.075);--glass2:rgba(255,255,255,.12);
+  --text:#f5f7fa;--muted:#9aa4b2;--cyan:#00f5d4;--blue:#00b4ff;--orange:#ff9f1c;--red:#ff416c;
+  --shadow:0 22px 70px rgba(0,0,0,.55);--radius:28px;
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;width:100%;min-height:100%;background:var(--bg);color:var(--text);font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;overflow:hidden}
+body:before{content:"";position:fixed;inset:0;background:
+ radial-gradient(circle at 15% 15%,rgba(0,245,212,.22),transparent 28%),
+ radial-gradient(circle at 82% 35%,rgba(255,159,28,.18),transparent 26%),
+ radial-gradient(circle at 70% 90%,rgba(125,79,255,.22),transparent 28%),
+ linear-gradient(135deg,#07112b,#061319 55%,#050816);z-index:-3}
+body:after{content:"";position:fixed;inset:0;background-image:linear-gradient(rgba(255,255,255,.04) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.04) 1px,transparent 1px);background-size:28px 28px;opacity:.35;z-index:-2}
+.orb{position:fixed;border-radius:999px;filter:blur(18px);opacity:.6;animation:float 7s ease-in-out infinite alternate;z-index:-1}
+.o1{width:140px;height:140px;background:#00f5d4;left:-35px;top:16%}.o2{width:150px;height:150px;background:#ff9f1c;right:-50px;top:37%;animation-delay:1s}.o3{width:170px;height:170px;background:#7447ff;right:10%;bottom:-70px;animation-delay:2s}
+@keyframes float{to{transform:translate(18px,-26px) scale(1.07)}}
+.screen{display:none;width:100vw;height:100dvh;position:relative;overflow:hidden}.screen.active{display:block;animation:fade .35s ease}
+@keyframes fade{from{opacity:0;transform:scale(.985)}to{opacity:1;transform:scale(1)}}
+.status{position:absolute;top:max(14px,env(safe-area-inset-top));left:28px;right:28px;display:flex;justify-content:space-between;align-items:center;font-size:17px;color:#d8dde8;z-index:5}
+.status .icons{letter-spacing:3px;font-size:20px}
+.top-btn{width:56px;height:56px;border-radius:22px;border:1px solid var(--glass2);background:var(--glass);color:#fff;display:grid;place-items:center;box-shadow:inset 0 1px 0 rgba(255,255,255,.08);backdrop-filter:blur(18px);font-size:24px}
+.shield{color:var(--cyan);filter:drop-shadow(0 0 12px var(--cyan));font-size:30px}
+.calculator{height:100dvh;padding:calc(env(safe-area-inset-top) + 78px) 22px 22px;display:flex;flex-direction:column;justify-content:flex-end;gap:20px}
+.calc-head{position:absolute;top:calc(env(safe-area-inset-top) + 76px);left:24px;right:24px;display:flex;justify-content:flex-end;align-items:center}
+.display{min-height:142px;display:flex;align-items:flex-end;justify-content:flex-end;text-align:right;font-size:clamp(58px,18vw,86px);font-weight:300;letter-spacing:-4px;padding:0 10px 0;color:white;text-shadow:0 0 25px rgba(255,255,255,.18);word-break:break-all}
+.keys{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;padding-bottom:env(safe-area-inset-bottom)}
+.key{height:clamp(70px,17vw,88px);border:0;border-radius:999px;color:#fff;font-size:clamp(30px,8vw,42px);background:linear-gradient(145deg,#1d2638,#0d1422);box-shadow:10px 14px 28px rgba(0,0,0,.42),inset 0 2px 2px rgba(255,255,255,.09);font-weight:400}
+.key:active{transform:scale(.96)}.op{background:linear-gradient(145deg,#ffb020,#ff8700)}.danger{background:linear-gradient(145deg,#ff416c,#b91d43)}.small{font-size:31px}
+.vault{height:100dvh;padding:calc(env(safe-area-inset-top) + 54px) 18px calc(env(safe-area-inset-bottom) + 90px);overflow-y:auto}
+.vault::-webkit-scrollbar{display:none}.vault-title{font-size:42px;margin:18px 0 22px;font-weight:800;letter-spacing:-1.5px}.vault-title span{color:var(--cyan);text-shadow:0 0 18px rgba(0,245,212,.25)}
+.vault-top{position:fixed;top:max(16px,env(safe-area-inset-top));left:18px;right:18px;height:48px;display:flex;align-items:center;justify-content:space-between;z-index:8}
+.app-title{font-size:20px;color:#dce3ee;font-weight:700;opacity:.9}.top-actions{display:flex;gap:10px}.icon-btn{width:52px;height:52px;border-radius:20px;border:1px solid var(--glass2);background:rgba(255,255,255,.06);color:var(--cyan);font-size:22px;display:grid;place-items:center;backdrop-filter:blur(16px)}
+.cards{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:18px}.card{min-height:148px;border:1px solid rgba(255,255,255,.09);border-radius:24px;background:linear-gradient(145deg,rgba(255,255,255,.09),rgba(255,255,255,.035));box-shadow:var(--shadow);padding:24px;position:relative;overflow:hidden}
+.card:before{content:"";position:absolute;right:-30px;top:-30px;width:100px;height:100px;border-radius:50%;background:rgba(0,245,212,.12);filter:blur(10px)}
+.card .ico{font-size:32px;color:var(--cyan);filter:drop-shadow(0 0 12px var(--cyan));margin-bottom:18px}.card h3{margin:0;color:#cdd5e2;font-size:18px}.card b{display:block;font-size:34px;margin-top:6px}
+.notice{border:1px solid rgba(255,159,28,.22);background:rgba(255,159,28,.08);color:#d8c5a1;padding:16px;border-radius:22px;margin:14px 0 18px;line-height:1.45}
+.section{display:none}.section.active{display:block}.list{display:flex;flex-direction:column;gap:12px;margin-top:12px}.item{border:1px solid rgba(255,255,255,.09);background:rgba(255,255,255,.06);border-radius:20px;padding:14px;display:flex;align-items:center;gap:12px;backdrop-filter:blur(16px)}
+.thumb{width:62px;height:62px;border-radius:16px;background:rgba(0,245,212,.12);object-fit:cover;display:grid;place-items:center;font-size:28px;color:var(--cyan);flex:0 0 auto}.item-main{flex:1;min-width:0}.item-title{font-weight:800;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.item-sub{font-size:12px;color:var(--muted);margin-top:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.item-actions{display:flex;gap:8px}.mini{border:0;border-radius:14px;padding:11px 12px;background:rgba(255,255,255,.09);color:#fff}.mini.del{background:rgba(255,65,108,.16);color:#ff6b8d}
+.empty{color:#9aa4b2;padding:18px 2px;font-size:14px}.bottom-nav{position:fixed;left:14px;right:14px;bottom:calc(env(safe-area-inset-bottom) + 12px);height:74px;border-radius:25px;border:1px solid rgba(255,255,255,.1);background:rgba(5,8,22,.74);backdrop-filter:blur(20px);display:grid;grid-template-columns:repeat(5,1fr);gap:5px;padding:8px;z-index:10;box-shadow:0 -10px 35px rgba(0,0,0,.38)}
+.nav{border:0;border-radius:18px;background:transparent;color:#8d96a8;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;font-size:11px}.nav i{font-style:normal;font-size:22px}.nav.active{background:rgba(0,245,212,.12);color:var(--cyan);box-shadow:inset 0 0 0 1px rgba(0,245,212,.15)}
+.fab{position:fixed;right:30px;bottom:calc(env(safe-area-inset-bottom) + 104px);width:72px;height:72px;border-radius:26px;border:0;background:linear-gradient(145deg,#36ff9c,#10c985);color:#061018;font-size:40px;box-shadow:0 0 35px rgba(0,245,160,.45);z-index:9}
+.modal{position:fixed;inset:0;background:rgba(0,0,0,.68);display:none;align-items:flex-end;z-index:40;backdrop-filter:blur(8px)}.modal.active{display:flex}
+.sheet{width:100%;max-height:86dvh;overflow:auto;border-radius:30px 30px 0 0;background:rgba(10,15,29,.96);border:1px solid rgba(255,255,255,.11);padding:22px;box-shadow:0 -30px 80px rgba(0,0,0,.55)}
+.sheet h2{margin:0 0 16px}.field{margin:12px 0}.field label{display:block;font-size:13px;color:#b7c0cf;margin-bottom:8px}.field input,.field textarea,.field select{width:100%;border:1px solid rgba(255,255,255,.12);border-radius:17px;background:rgba(255,255,255,.07);color:#fff;padding:15px;font-size:16px;outline:0}.field textarea{min-height:110px;resize:vertical}
+.primary{width:100%;border:0;border-radius:18px;padding:16px;background:linear-gradient(135deg,var(--cyan),#22ff91);color:#03110d;font-weight:900;font-size:16px;margin-top:12px}.secondary{width:100%;border:1px solid rgba(255,255,255,.12);border-radius:18px;padding:15px;background:rgba(255,255,255,.07);color:#fff;font-weight:800;margin-top:10px}
+.progress{height:8px;border-radius:999px;background:rgba(255,255,255,.08);overflow:hidden;margin-top:10px;display:none}.bar{height:100%;width:0;background:linear-gradient(90deg,var(--cyan),var(--orange));transition:.3s}
+.toast{position:fixed;left:18px;right:18px;top:calc(env(safe-area-inset-top) + 18px);padding:14px 16px;border-radius:18px;background:rgba(8,13,26,.92);border:1px solid rgba(0,245,212,.22);color:#fff;z-index:80;box-shadow:var(--shadow);transform:translateY(-130%);transition:.35s;backdrop-filter:blur(18px)}.toast.show{transform:translateY(0)}
+.confirm{position:fixed;inset:0;background:rgba(0,0,0,.72);display:none;place-items:center;z-index:70;padding:22px}.confirm.active{display:grid}.confirm-box{width:100%;max-width:360px;border-radius:26px;background:rgba(12,17,31,.96);border:1px solid rgba(255,255,255,.12);padding:22px;text-align:center}.confirm-actions{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:18px}
+.viewer{position:fixed;inset:0;background:#000;display:none;z-index:90}.viewer.active{display:flex;align-items:center;justify-content:center}.viewer img,.viewer video{max-width:100%;max-height:100%;object-fit:contain}.close-view{position:absolute;top:20px;right:20px;z-index:91}
+@media(min-width:700px){.calculator,.vault{max-width:520px;margin:0 auto}.bottom-nav{left:50%;right:auto;transform:translateX(-50%);width:min(492px,calc(100vw - 28px))}.fab{right:calc((100vw - min(520px,100vw))/2 + 28px)}}
+</style>
+</head>
+<body>
+<div class="orb o1"></div><div class="orb o2"></div><div class="orb o3"></div>
+<div id="toast" class="toast">Message</div>
+
+<section id="setupScreen" class="screen">
+  <div class="vault" style="display:flex;align-items:center;justify-content:center;padding:22px">
+    <div class="sheet" style="border-radius:30px;max-height:none">
+      <h2>🔐 Create Vault Password</h2>
+      <p style="color:var(--muted)">First time setup. This data stays only on this device.</p>
+      <div class="field"><label>Password</label><input id="setupPass" type="password" placeholder="Enter password"></div>
+      <div class="field"><label>Confirm Password</label><input id="setupPass2" type="password" placeholder="Confirm password"></div>
+      <button class="primary" onclick="createPassword()">Create Vault</button>
+    </div>
+  </div>
+</section>
+
+<section id="calcScreen" class="screen active">
+  <div class="status"><span>9:41</span><span class="icons">▥ Wi‑Fi ▱</span></div>
+  <div class="calculator">
+    <div class="calc-head"><span class="shield">🛡</span></div>
+    <div class="display" id="display">0</div>
+    <div class="keys">
+      <button class="key danger" onclick="clearCalc()">AC</button><button class="key small" onclick="toggleSign()">+/−</button><button class="key small" onclick="pressOp('%')">%</button><button class="key op" onclick="pressOp('/')">÷</button>
+      <button class="key" onclick="pressNum('7')">7</button><button class="key" onclick="pressNum('8')">8</button><button class="key" onclick="pressNum('9')">9</button><button class="key op" onclick="pressOp('*')">×</button>
+      <button class="key" onclick="pressNum('4')">4</button><button class="key" onclick="pressNum('5')">5</button><button class="key" onclick="pressNum('6')">6</button><button class="key op" onclick="pressOp('-')">−</button>
+      <button class="key" onclick="pressNum('1')">1</button><button class="key" onclick="pressNum('2')">2</button><button class="key" onclick="pressNum('3')">3</button><button class="key op" onclick="pressOp('+')">+</button>
+      <button class="key small" onclick="backspace()">⌫</button><button class="key" onclick="pressNum('0')">0</button><button class="key" onclick="pressNum('.')">.</button><button class="key op" onclick="equals()">=</button>
+    </div>
+  </div>
+</section>
+
+<section id="vaultScreen" class="screen">
+  <div class="status"><span>9:41</span><span class="icons">▥ Wi‑Fi ▱</span></div>
+  <div class="vault-top"><div class="app-title">HideUCalculator Lock 3D</div><div class="top-actions"><button class="icon-btn" onclick="lockVault()">🧮</button></div></div>
+  <div class="vault">
+    <h1 class="vault-title">My <span>Vault</span></h1>
+    <div class="cards">
+      <div class="card" onclick="switchTab('notes')"><div class="ico">📝</div><h3>Notes</h3><b id="notesCount">0</b></div>
+      <div class="card" onclick="switchTab('passwords')"><div class="ico">🔑</div><h3>Passwords</h3><b id="passwordsCount">0</b></div>
+      <div class="card" onclick="switchTab('gallery')"><div class="ico">🖼</div><h3>Gallery</h3><b id="galleryCount">0</b></div>
+      <div class="card" onclick="switchTab('videos')"><div class="ico">🎥</div><h3>Videos</h3><b id="videosCount">0</b></div>
+    </div>
+    <div id="notes" class="section active"><div id="notesList" class="list"></div></div>
+    <div id="passwords" class="section"><div id="passwordsList" class="list"></div></div>
+    <div id="gallery" class="section"><div id="galleryList" class="list"></div></div>
+    <div id="videos" class="section"><div id="videosList" class="list"></div></div>
+    <div id="files" class="section"><div id="filesList" class="list"></div></div>
+    <div class="notice">Demo privacy: media/files are saved in IndexedDB on this phone WebView. No cloud upload. Clearing app data or uninstalling app can delete vault data.</div>
+  </div>
+  <button class="fab" onclick="openAdd()">+</button>
+  <div class="bottom-nav">
+    <button class="nav active" data-tab="notes" onclick="switchTab('notes')"><i>📝</i>Notes</button>
+    <button class="nav" data-tab="passwords" onclick="switchTab('passwords')"><i>🔑</i>Passwords</button>
+    <button class="nav" data-tab="gallery" onclick="switchTab('gallery')"><i>🖼</i>Gallery</button>
+    <button class="nav" data-tab="videos" onclick="switchTab('videos')"><i>🎥</i>Videos</button>
+    <button class="nav" data-tab="files" onclick="switchTab('files')"><i>📁</i>Files</button>
+  </div>
+</section>
+
+<div id="addModal" class="modal"><div class="sheet">
+  <h2 id="modalTitle">Add Item</h2>
+  <div id="noteFields">
+    <div class="field"><label>Title</label><input id="noteTitle" placeholder="Private note title"></div>
+    <div class="field"><label>Note</label><textarea id="noteText" placeholder="Write your note"></textarea></div>
+  </div>
+  <div id="passFields" style="display:none">
+    <div class="field"><label>Account</label><input id="passTitle" placeholder="Facebook / Gmail"></div>
+    <div class="field"><label>Username / Email</label><input id="passUser" placeholder="username@email.com"></div>
+    <div class="field"><label>Password</label><input id="passValue" placeholder="password"></div>
+  </div>
+  <div id="fileFields" style="display:none">
+    <div class="field"><label>Select file</label><input id="fileInput" type="file"></div>
+    <div class="progress" id="progress"><div class="bar" id="bar"></div></div>
+    <p style="color:var(--muted);font-size:13px">Large media uses IndexedDB Blob storage. Video viewer now detects real file type and shows controls.</p>
+  </div>
+  <button class="primary" onclick="saveCurrent()">Save</button>
+  <button class="secondary" onclick="closeAdd()">Cancel</button>
+</div></div>
+
+<div id="confirm" class="confirm"><div class="confirm-box">
+  <h2>Delete item?</h2><p style="color:var(--muted)">This will remove it from this device permanently.</p>
+  <div class="confirm-actions"><button class="secondary" onclick="closeConfirm()">Cancel</button><button class="primary" style="background:linear-gradient(135deg,#ff416c,#ff9f1c)" onclick="confirmDelete()">Delete</button></div>
+</div></div>
+
+<div id="viewer" class="viewer"><button class="icon-btn close-view" onclick="closeViewer()">✕</button><div id="viewerContent"></div></div>
+
+<script>
+let current='0',prev=null,op=null,activeTab='notes',pendingDelete=null,db=null;
+const $=id=>document.getElementById(id);
+function showToast(msg){const t=$('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2300)}
+function screen(id){document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));$(id).classList.add('active')}
+function init(){if(!localStorage.getItem('vaultPassword'))screen('setupScreen');else screen('calcScreen');openDB().then(loadAll)}
+function createPassword(){let a=$('setupPass').value,b=$('setupPass2').value;if(a.length<4)return showToast('Password must be 4+ characters');if(a!==b)return showToast('Passwords do not match');localStorage.setItem('vaultPassword',a);showToast('Vault created');screen('calcScreen')}
+function updateDisplay(){$('display').textContent=current}
+function pressNum(n){if(current==='0'&&n!=='.')current=n;else if(n==='.'&&current.includes('.'))return;else current+=n;updateDisplay()}
+function pressOp(o){prev=parseFloat(current);op=o;current='0';updateDisplay()}
+function calc(){let c=parseFloat(current),r=c;if(prev!==null&&op){if(op==='+')r=prev+c;if(op==='-')r=prev-c;if(op==='*')r=prev*c;if(op==='/')r=c?prev/c:0;if(op==='%')r=prev%c;current=String(Number.isFinite(r)?r:0);prev=null;op=null;updateDisplay()}}
+function equals(){const pass=localStorage.getItem('vaultPassword');if(current===pass){current='0';updateDisplay();screen('vaultScreen');showToast('Vault unlocked');loadAll();return}if(op){calc();return}showToast('Wrong password');current='0';updateDisplay()}
+function clearCalc(){current='0';prev=null;op=null;updateDisplay()}function backspace(){current=current.length>1?current.slice(0,-1):'0';updateDisplay()}function toggleSign(){if(current!=='0')current=String(parseFloat(current)*-1);updateDisplay()}
+function lockVault(){clearCalc();screen('calcScreen');showToast('Calculator mode')}
+function switchTab(tab){activeTab=tab;document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'));$(tab).classList.add('active');document.querySelectorAll('.nav').forEach(n=>n.classList.toggle('active',n.dataset.tab===tab));loadAll()}
+function openAdd(){ $('addModal').classList.add('active'); $('noteFields').style.display=activeTab==='notes'?'block':'none'; $('passFields').style.display=activeTab==='passwords'?'block':'none'; $('fileFields').style.display=['gallery','videos','files'].includes(activeTab)?'block':'none'; $('modalTitle').textContent='Add '+activeTab[0].toUpperCase()+activeTab.slice(1); $('fileInput').accept=activeTab==='gallery'?'image/*,video/*':activeTab==='videos'?'video/*':'*/*';}
+function closeAdd(){ $('addModal').classList.remove('active'); $('noteTitle').value=$('noteText').value=$('passTitle').value=$('passUser').value=$('passValue').value=''; $('fileInput').value=''; $('progress').style.display='none'; $('bar').style.width='0%'}
+async function saveCurrent(){if(activeTab==='notes'){let title=$('noteTitle').value.trim(),text=$('noteText').value.trim();if(!title||!text)return showToast('Please fill note');let a=JSON.parse(localStorage.getItem('notes')||'[]');a.unshift({id:Date.now(),title,text,date:new Date().toLocaleString()});localStorage.setItem('notes',JSON.stringify(a));closeAdd();showToast('Note saved');loadAll();return}
+if(activeTab==='passwords'){let title=$('passTitle').value.trim(),user=$('passUser').value.trim(),pass=$('passValue').value.trim();if(!title||!pass)return showToast('Please fill password');let a=JSON.parse(localStorage.getItem('passwords')||'[]');a.unshift({id:Date.now(),title,user,pass,date:new Date().toLocaleString()});localStorage.setItem('passwords',JSON.stringify(a));closeAdd();showToast('Password saved');loadAll();return}
+let f=$('fileInput').files[0];if(!f)return showToast('Select file first');$('progress').style.display='block';$('bar').style.width='25%';try{await putMedia({id:Date.now(),cat:activeTab,name:f.name,type:f.type||'file',size:f.size,date:new Date().toLocaleString(),blob:f});$('bar').style.width='100%';setTimeout(()=>{closeAdd();showToast('File saved on device');loadAll()},350)}catch(e){showToast('Storage failed: try smaller file or clear app storage')}}
+function openDB(){return new Promise((res,rej)=>{let r=indexedDB.open('HideUVaultDB',1);r.onupgradeneeded=e=>{let d=e.target.result;if(!d.objectStoreNames.contains('media'))d.createObjectStore('media',{keyPath:'id'})};r.onsuccess=e=>{db=e.target.result;res(db)};r.onerror=()=>rej(r.error)})}
+function tx(store,mode='readonly'){return db.transaction(store,mode).objectStore(store)}
+function putMedia(obj){return new Promise((res,rej)=>{let r=tx('media','readwrite').put(obj);r.onsuccess=res;r.onerror=()=>rej(r.error)})}
+function getMediaAll(){return new Promise((res,rej)=>{let r=tx('media').getAll();r.onsuccess=()=>res(r.result||[]);r.onerror=()=>rej(r.error)})}
+function delMedia(id){return new Promise((res,rej)=>{let r=tx('media','readwrite').delete(id);r.onsuccess=res;r.onerror=()=>rej(r.error)})}
+function bytes(n){if(n>1024*1024*1024)return(n/1024/1024/1024).toFixed(2)+' GB';if(n>1024*1024)return(n/1024/1024).toFixed(2)+' MB';if(n>1024)return(n/1024).toFixed(1)+' KB';return n+' B'}
+function esc(s){return String(s||'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]))}
+async function loadAll(){loadText('notes');loadText('passwords');if(db){let all=await getMediaAll();['gallery','videos','files'].forEach(cat=>renderMedia(cat,all.filter(x=>x.cat===cat)));$('galleryCount').textContent=all.filter(x=>x.cat==='gallery').length;$('videosCount').textContent=all.filter(x=>x.cat==='videos').length}}
+function loadText(type){let a=JSON.parse(localStorage.getItem(type)||'[]');$(type+'Count').textContent=a.length;let list=$(type+'List');list.innerHTML=a.length?'':'<div class="empty">No '+type+' yet</div>';a.forEach(x=>{let sub=type==='passwords'?(esc(x.user)+' • '+esc(x.pass)):esc(x.text);let icon=type==='passwords'?'🔑':'📝';list.insertAdjacentHTML('beforeend',`<div class="item"><div class="thumb">${icon}</div><div class="item-main"><div class="item-title">${esc(x.title)}</div><div class="item-sub">${sub}</div></div><div class="item-actions"><button class="mini del" onclick="askDelete('${type}',${x.id})">🗑</button></div></div>`)})}
+function renderMedia(cat,a){
+let list=$(cat+'List');
+list.innerHTML=a.length?'':'<div class="empty">No '+cat+' yet</div>';
+a.sort((x,y)=>y.id-x.id).forEach(x=>{
+  let url=URL.createObjectURL(x.blob);
+  let isImg=(x.type||'').startsWith('image/');
+  let isVid=(x.type||'').startsWith('video/');
+  let th=isImg?`<img class="thumb" src="${url}">`:`<div class="thumb">${isVid?'▶️':'📁'}</div>`;
+  list.insertAdjacentHTML('beforeend',`<div class="item">${th}<div class="item-main" onclick="openMedia(${x.id})"><div class="item-title">${esc(x.name)}</div><div class="item-sub">${bytes(x.size)} • ${esc(x.type||'file')} • ${esc(x.date)}</div></div><div class="item-actions"><button class="mini" onclick="openMedia(${x.id})">Open</button><button class="mini del" onclick="askDelete('media',${x.id})">🗑</button></div></div>`)
+})
+}
+async function openMedia(id){
+let all=await getMediaAll();
+let x=all.find(i=>i.id===id);
+if(!x)return;
+let url=URL.createObjectURL(x.blob);
+let c=$('viewerContent');
+let isImg=(x.type||'').startsWith('image/');
+let isVid=(x.type||'').startsWith('video/');
+if(isImg){
+  c.innerHTML=`<img src="${url}" alt="${esc(x.name)}">`;
+}else if(isVid){
+  c.innerHTML=`<video src="${url}" controls playsinline preload="metadata" style="width:100%;height:100%;max-width:100%;max-height:100%;background:#000;object-fit:contain"></video>`;
+  setTimeout(()=>{let v=c.querySelector('video'); if(v){v.load(); v.play().catch(()=>{});}},100);
+}else{
+  c.innerHTML=`<div style="text-align:center;color:white;padding:25px"><div style="font-size:70px">📁</div><h2>${esc(x.name)}</h2><p>${bytes(x.size)}</p><a class="primary" style="display:block;text-decoration:none" href="${url}" download="${esc(x.name)}">Download / Open</a></div>`;
+}
+$('viewer').classList.add('active')
+}
+function closeViewer(){$('viewer').classList.remove('active');$('viewerContent').innerHTML=''}
+function askDelete(type,id){pendingDelete={type,id};$('confirm').classList.add('active')}
+function closeConfirm(){pendingDelete=null;$('confirm').classList.remove('active')}
+async function confirmDelete(){if(!pendingDelete)return;let {type,id}=pendingDelete;if(type==='media')await delMedia(id);else{let a=JSON.parse(localStorage.getItem(type)||'[]').filter(x=>x.id!==id);localStorage.setItem(type,JSON.stringify(a))}closeConfirm();showToast('Item deleted');loadAll()}
+window.addEventListener('load',init);
+</script>
+</body>
+</html>
