@@ -1,0 +1,463 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>HideU Calculator Lock 3D</title>
+<style>
+*{box-sizing:border-box}
+body{margin:0;font-family:Arial,sans-serif;background:#050816;color:white;overflow:hidden}
+body:before{content:"";position:fixed;inset:0;background:radial-gradient(circle at 20% 20%,#00f5d433,transparent 30%),radial-gradient(circle at 80% 40%,#ff9f1c33,transparent 30%),linear-gradient(135deg,#07112b,#050816);z-index:-1}
+.screen{display:none;width:100vw;height:100dvh}
+.active{display:block}
+.top{position:absolute;top:18px;left:25px;right:25px;display:flex;justify-content:space-between;font-size:18px;color:#ddd;z-index:5}
+.calc{height:100dvh;padding:90px 22px 25px;display:flex;flex-direction:column;justify-content:flex-end}
+.display{text-align:right;font-size:80px;font-weight:300;min-height:150px;padding-right:10px;word-break:break-all}
+.keys{display:grid;grid-template-columns:repeat(4,1fr);gap:15px}
+.key{height:78px;border:0;border-radius:50px;background:linear-gradient(145deg,#1d2638,#0d1422);color:white;font-size:34px;box-shadow:0 10px 25px #0008}
+.key:active{transform:scale(.95)}
+.op{background:linear-gradient(145deg,#ffb020,#ff8700)}
+.red{background:linear-gradient(145deg,#ff416c,#b91d43)}
+.vault{height:100dvh;overflow-y:auto;padding:75px 18px 100px}
+.vault h1{font-size:42px;margin:10px 0 20px}
+.vault h1 span{color:#00f5d4}
+.cards{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.card{min-height:135px;border-radius:24px;padding:22px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.1);box-shadow:0 20px 50px #0008}
+.card .i{font-size:34px;color:#00f5d4}
+.card h3{margin:18px 0 5px;color:#cfd6e3}
+.card b{font-size:32px}
+.nav{position:fixed;left:12px;right:12px;bottom:12px;height:75px;border-radius:25px;background:rgba(5,8,22,.85);display:grid;grid-template-columns:repeat(5,1fr);gap:5px;padding:8px;border:1px solid rgba(255,255,255,.1)}
+.nav button{border:0;background:transparent;color:#8d96a8;border-radius:18px;font-size:11px}
+.nav button.active{background:#00f5d422;color:#00f5d4}
+.nav i{display:block;font-size:22px;font-style:normal}
+.fab{position:fixed;right:25px;bottom:105px;width:70px;height:70px;border:0;border-radius:25px;background:linear-gradient(145deg,#36ff9c,#10c985);font-size:40px}
+.section{display:none;margin-top:18px}
+.section.active{display:block}
+.item{display:flex;align-items:center;gap:12px;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.1);padding:12px;border-radius:18px;margin-bottom:12px}
+.thumb{width:60px;height:60px;border-radius:15px;background:#00f5d422;display:grid;place-items:center;font-size:28px;object-fit:cover}
+.info{flex:1;min-width:0}
+.title{font-weight:bold;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.sub{font-size:12px;color:#9aa4b2;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.del,.open{border:0;border-radius:12px;padding:10px;color:white;background:#ffffff22}
+.del{background:#ff416c33;color:#ff8aa5}
+.modal{position:fixed;inset:0;background:#000b;display:none;align-items:flex-end;z-index:20}
+.modal.show{display:flex}
+.sheet{width:100%;background:#0b1020;border-radius:28px 28px 0 0;padding:22px;border:1px solid #ffffff22}
+input,textarea{width:100%;padding:15px;margin:8px 0 14px;border-radius:15px;border:1px solid #ffffff22;background:#ffffff12;color:white;font-size:16px}
+textarea{min-height:100px}
+.primary{width:100%;padding:16px;border:0;border-radius:18px;background:linear-gradient(135deg,#00f5d4,#22ff91);font-weight:bold}
+.secondary{width:100%;padding:15px;border:1px solid #ffffff22;border-radius:18px;background:#ffffff12;color:white;margin-top:10px}
+.toast{position:fixed;top:18px;left:18px;right:18px;padding:14px;border-radius:16px;background:#08101eee;border:1px solid #00f5d455;z-index:99;transform:translateY(-120%);transition:.3s}
+.toast.show{transform:translateY(0)}
+.viewer{position:fixed;inset:0;background:#000;display:none;align-items:center;justify-content:center;z-index:90}
+.viewer.show{display:flex}
+.viewer img,.viewer video{max-width:100%;max-height:100%;object-fit:contain}
+.close{position:absolute;top:18px;right:18px;width:55px;height:55px;border-radius:20px;border:0;background:#111;color:#00f5d4;font-size:30px;z-index:99}
+</style>
+</head>
+<body>
+
+<div id="toast" class="toast"></div>
+
+<section id="setup" class="screen">
+  <div class="vault">
+    <h1>Create <span>Vault</span></h1>
+    <input id="newPass" type="password" placeholder="Create password">
+    <input id="confirmPass" type="password" placeholder="Confirm password">
+    <button class="primary" onclick="createPass()">Create Vault</button>
+  </div>
+</section>
+
+<section id="calculator" class="screen active">
+  <div class="top"><span>9:41</span><span>🛡</span></div>
+  <div class="calc">
+    <div id="display" class="display">0</div>
+    <div class="keys">
+      <button class="key red" onclick="clearCalc()">AC</button>
+      <button class="key" onclick="toggleSign()">+/−</button>
+      <button class="key" onclick="setOp('%')">%</button>
+      <button class="key op" onclick="setOp('/')">÷</button>
+      <button class="key" onclick="num('7')">7</button>
+      <button class="key" onclick="num('8')">8</button>
+      <button class="key" onclick="num('9')">9</button>
+      <button class="key op" onclick="setOp('*')">×</button>
+      <button class="key" onclick="num('4')">4</button>
+      <button class="key" onclick="num('5')">5</button>
+      <button class="key" onclick="num('6')">6</button>
+      <button class="key op" onclick="setOp('-')">−</button>
+      <button class="key" onclick="num('1')">1</button>
+      <button class="key" onclick="num('2')">2</button>
+      <button class="key" onclick="num('3')">3</button>
+      <button class="key op" onclick="setOp('+')">+</button>
+      <button class="key" onclick="back()">⌫</button>
+      <button class="key" onclick="num('0')">0</button>
+      <button class="key" onclick="num('.')">.</button>
+      <button class="key op" onclick="equal()">=</button>
+    </div>
+  </div>
+  </section>
+  <section id="vault" class="screen">
+  <div class="top">
+    <span>HideU Calculator Lock 3D</span>
+    <button class="open" onclick="lockVault()">🧮</button>
+  </div>
+
+  <div class="vault">
+    <h1>My <span>Vault</span></h1>
+
+    <div class="cards">
+      <div class="card" onclick="tab('notes')"><div class="i">📝</div><h3>Notes</h3><b id="notesCount">0</b></div>
+      <div class="card" onclick="tab('passwords')"><div class="i">🔑</div><h3>Passwords</h3><b id="passwordsCount">0</b></div>
+      <div class="card" onclick="tab('gallery')"><div class="i">🖼</div><h3>Gallery</h3><b id="galleryCount">0</b></div>
+      <div class="card" onclick="tab('videos')"><div class="i">🎥</div><h3>Videos</h3><b id="videosCount">0</b></div>
+    </div>
+
+    <div id="notes" class="section active"><div id="notesList"></div></div>
+    <div id="passwords" class="section"><div id="passwordsList"></div></div>
+    <div id="gallery" class="section"><div id="galleryList"></div></div>
+    <div id="videos" class="section"><div id="videosList"></div></div>
+    <div id="files" class="section"><div id="filesList"></div></div>
+  </div>
+
+  <button class="fab" onclick="openAdd()">+</button>
+
+  <div class="nav">
+    <button class="active" onclick="tab('notes')"><i>📝</i>Notes</button>
+    <button onclick="tab('passwords')"><i>🔑</i>Passwords</button>
+    <button onclick="tab('gallery')"><i>🖼</i>Gallery</button>
+    <button onclick="tab('videos')"><i>🎥</i>Videos</button>
+    <button onclick="tab('files')"><i>📁</i>Files</button>
+  </div>
+</section>
+
+<div id="modal" class="modal">
+  <div class="sheet">
+    <h2 id="modalTitle">Add</h2>
+
+    <div id="noteBox">
+      <input id="noteTitle" placeholder="Note title">
+      <textarea id="noteText" placeholder="Write note"></textarea>
+    </div>
+
+    <div id="passBox" style="display:none">
+      <input id="passTitle" placeholder="Account name">
+      <input id="passUser" placeholder="Username / Email">
+      <input id="passValue" placeholder="Password">
+    </div>
+
+    <div id="fileBox" style="display:none">
+      <input id="fileInput" type="file">
+      <p style="color:#9aa4b2;font-size:13px">
+        Videos, images and files are saved in IndexedDB on this device.
+      </p>
+    </div>
+
+    <button class="primary" onclick="saveItem()">Save</button>
+    <button class="secondary" onclick="closeAdd()">Cancel</button>
+  </div>
+</div>
+
+<div id="viewer" class="viewer">
+  <button class="close" onclick="closeViewer()">×</button>
+  <div id="viewerContent"></div>
+</div>
+
+<script>
+let current='0', previous=null, operation=null, activeTab='notes', db=null;
+
+function $(id){return document.getElementById(id)}
+function toast(msg){let t=$('toast');t.innerText=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2200)}
+function showScreen(id){document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));$(id).classList.add('active')}
+
+function init(){
+  if(!localStorage.getItem('vaultPassword')) showScreen('setup');
+  else showScreen('calculator');
+  openDB().then(loadAll);
+}
+window.onload=init;
+
+function createPass(){
+  let a=$('newPass').value;
+  let b=$('confirmPass').value;
+  if(a.length<4)return toast('Password must be 4+ characters');
+  if(a!==b)return toast('Passwords do not match');
+  localStorage.setItem('vaultPassword',a);
+  toast('Vault created');
+  showScreen('calculator');
+}
+
+function updateDisplay(){ $('display').innerText=current }
+function num(n){
+  if(current==='0' && n!=='.') current=n;
+  else if(n==='.' && current.includes('.')) return;
+  else current+=n;
+  updateDisplay();
+}
+function setOp(o){previous=parseFloat(current);operation=o;current='0';updateDisplay()}
+function clearCalc(){current='0';previous=null;operation=null;updateDisplay()}
+function back(){current=current.length>1?current.slice(0,-1):'0';updateDisplay()}
+function toggleSign(){if(current!=='0')current=String(parseFloat(current)*-1);updateDisplay()}
+
+function equal(){
+  let pass=localStorage.getItem('vaultPassword');
+  if(current===pass){
+    current='0';updateDisplay();
+    showScreen('vault');
+    toast('Vault unlocked');
+    loadAll();
+    return;
+  }
+
+  if(previous!==null && operation){
+    let c=parseFloat(current), r=0;
+    if(operation==='+')r=previous+c;
+    if(operation==='-')r=previous-c;
+    if(operation==='*')r=previous*c;
+    if(operation==='/')r=c?previous/c:0;
+    if(operation==='%')r=previous%c;
+    current=String(r);
+    previous=null;operation=null;
+    updateDisplay();
+  }else{
+    toast('Wrong password');
+    current='0';updateDisplay();
+  }
+}
+
+function lockVault(){
+  clearCalc();
+  showScreen('calculator');
+  toast('Calculator mode');
+}
+
+function tab(name){
+  activeTab=name;
+  document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'));
+  $(name).classList.add('active');
+
+  document.querySelectorAll('.nav button').forEach(b=>b.classList.remove('active'));
+  [...document.querySelectorAll('.nav button')].find(b=>b.innerText.toLowerCase().includes(name.slice(0,4)))?.classList.add('active');
+
+  loadAll();
+}
+
+function openAdd(){
+  $('modal').classList.add('show');
+  $('modalTitle').innerText='Add '+activeTab;
+  $('noteBox').style.display=activeTab==='notes'?'block':'none';
+  $('passBox').style.display=activeTab==='passwords'?'block':'none';
+  $('fileBox').style.display=['gallery','videos','files'].includes(activeTab)?'block':'none';
+  $('fileInput').accept=activeTab==='gallery'?'image/*':activeTab==='videos'?'video/*':'*/*';
+}
+
+function closeAdd(){
+  $('modal').classList.remove('show');
+  $('noteTitle').value='';
+  $('noteText').value='';
+  $('passTitle').value='';
+  $('passUser').value='';
+  $('passValue').value='';
+  $('fileInput').value='';
+}
+
+async function saveItem(){
+  if(activeTab==='notes'){
+    let title=$('noteTitle').value.trim();
+    let text=$('noteText').value.trim();
+    if(!title||!text)return toast('Fill note fields');
+    let data=JSON.parse(localStorage.getItem('notes')||'[]');
+    data.unshift({id:Date.now(),title,text});
+    localStorage.setItem('notes',JSON.stringify(data));
+    closeAdd();toast('Note saved');loadAll();return;
+  }
+
+  if(activeTab==='passwords'){
+    let title=$('passTitle').value.trim();
+    let user=$('passUser').value.trim();
+    let pass=$('passValue').value.trim();
+    if(!title||!pass)return toast('Fill password fields');
+    let data=JSON.parse(localStorage.getItem('passwords')||'[]');
+    data.unshift({id:Date.now(),title,user,pass});
+    localStorage.setItem('passwords',JSON.stringify(data));
+    closeAdd();toast('Password saved');loadAll();return;
+  }
+
+  let file=$('fileInput').files[0];
+  if(!file)return toast('Select file');
+  await saveMedia({
+    id:Date.now(),
+    cat:activeTab,
+    name:file.name,
+    type:file.type,
+    size:file.size,
+    blob:file
+  });
+  closeAdd();
+  toast('File saved');
+  loadAll();
+}
+
+function openDB(){
+  return new Promise((resolve,reject)=>{
+    let req=indexedDB.open('HideUVaultDB',1);
+    req.onupgradeneeded=e=>{
+      let db=e.target.result;
+      if(!db.objectStoreNames.contains('media')) db.createObjectStore('media',{keyPath:'id'});
+    };
+    req.onsuccess=e=>{db=e.target.result;resolve(db)};
+    req.onerror=()=>reject(req.error);
+  });
+}
+
+function mediaStore(mode='readonly'){
+  return db.transaction('media',mode).objectStore('media');
+}
+
+function saveMedia(item){
+  return new Promise((resolve,reject)=>{
+    let req=mediaStore('readwrite').put(item);
+    req.onsuccess=resolve;
+    req.onerror=()=>reject(req.error);
+  });
+}
+
+function getMedia(){
+  return new Promise((resolve,reject)=>{
+    let req=mediaStore().getAll();
+    req.onsuccess=()=>resolve(req.result||[]);
+    req.onerror=()=>reject(req.error);
+  });
+}
+
+function deleteMedia(id){
+  return new Promise((resolve,reject)=>{
+    let req=mediaStore('readwrite').delete(id);
+    req.onsuccess=resolve;
+    req.onerror=()=>reject(req.error);
+  });
+}
+
+function size(bytes){
+  if(bytes>1024*1024) return (bytes/1024/1024).toFixed(2)+' MB';
+  if(bytes>1024) return (bytes/1024).toFixed(1)+' KB';
+  return bytes+' B';
+}
+
+function safe(s){
+  return String(s||'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
+}
+
+async function loadAll(){
+  loadText('notes');
+  loadText('passwords');
+
+  if(!db)return;
+  let media=await getMedia();
+  renderMedia('gallery',media.filter(x=>x.cat==='gallery'));
+  renderMedia('videos',media.filter(x=>x.cat==='videos'));
+  renderMedia('files',media.filter(x=>x.cat==='files'));
+
+  $('galleryCount').innerText=media.filter(x=>x.cat==='gallery').length;
+  $('videosCount').innerText=media.filter(x=>x.cat==='videos').length;
+}
+
+function loadText(type){
+  let data=JSON.parse(localStorage.getItem(type)||'[]');
+  $(type+'Count').innerText=data.length;
+  let box=$(type+'List');
+  box.innerHTML=data.length?'':'<p style="color:#9aa4b2">No '+type+' yet</p>';
+
+  data.forEach(item=>{
+    let sub=type==='notes'?item.text:item.user+' • '+item.pass;
+    box.innerHTML+=`
+      <div class="item">
+        <div class="thumb">${type==='notes'?'📝':'🔑'}</div>
+        <div class="info">
+          <div class="title">${safe(item.title)}</div>
+          <div class="sub">${safe(sub)}</div>
+        </div>
+        <button class="del" onclick="deleteText('${type}',${item.id})">🗑</button>
+      </div>`;
+  });
+}
+
+function deleteText(type,id){
+  let data=JSON.parse(localStorage.getItem(type)||'[]');
+  data=data.filter(x=>x.id!==id);
+  localStorage.setItem(type,JSON.stringify(data));
+  toast('Deleted');
+  loadAll();
+}
+
+function renderMedia(cat,data){
+  let box=$(cat+'List');
+  box.innerHTML=data.length?'':'<p style="color:#9aa4b2">No '+cat+' yet</p>';
+
+  data.forEach(item=>{
+    let icon='📁';
+    let preview=`<div class="thumb">📁</div>`;
+
+    if(item.type && item.type.startsWith('image/')){
+      let url=URL.createObjectURL(item.blob);
+      preview=`<img class="thumb" src="${url}">`;
+    }
+
+    if(item.type && item.type.startsWith('video/')){
+      preview=`<div class="thumb">▶️</div>`;
+    }
+
+    box.innerHTML+=`
+      <div class="item">
+        ${preview}
+        <div class="info" onclick="openMedia(${item.id})">
+          <div class="title">${safe(item.name)}</div>
+          <div class="sub">${size(item.size)}</div>
+        </div>
+        <button class="open" onclick="openMedia(${item.id})">Open</button>
+        <button class="del" onclick="removeMedia(${item.id})">🗑</button>
+      </div>`;
+  });
+}
+
+async function openMedia(id){
+  let data=await getMedia();
+  let item=data.find(x=>x.id===id);
+  if(!item)return toast('File not found');
+
+  let url=URL.createObjectURL(item.blob);
+  let box=$('viewerContent');
+
+  if(item.type && item.type.startsWith('image/')){
+    box.innerHTML=`<img src="${url}">`;
+  }else if(item.type && item.type.startsWith('video/')){
+    box.innerHTML=`
+      <video controls autoplay playsinline preload="metadata">
+        <source src="${url}" type="${item.type}">
+      </video>`;
+  }else{
+    box.innerHTML=`
+      <div style="text-align:center;padding:25px">
+        <div style="font-size:70px">📁</div>
+        <h2>${safe(item.name)}</h2>
+        <p>${size(item.size)}</p>
+        <a href="${url}" download="${safe(item.name)}" style="color:#00f5d4;font-size:20px">Download</a>
+      </div>`;
+  }
+
+  $('viewer').classList.add('show');
+}
+
+function closeViewer(){
+  $('viewer').classList.remove('show');
+  $('viewerContent').innerHTML='';
+}
+
+async function removeMedia(id){
+  await deleteMedia(id);
+  toast('Deleted');
+  loadAll();
+}
+</script>
+
+</body>
+  </html>
