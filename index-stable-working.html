@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0,viewport-fit=cover">
+<title>HideU Calculator Lock 3D</title>
+<style>
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;width:100%;height:100%;font-family:Arial,system-ui,sans-serif;background:#050816;color:#fff;overflow:hidden}
+body:before{content:"";position:fixed;inset:0;background:
+radial-gradient(circle at 15% 20%,rgba(0,245,212,.25),transparent 28%),
+radial-gradient(circle at 85% 35%,rgba(255,159,28,.22),transparent 28%),
+radial-gradient(circle at 75% 90%,rgba(120,80,255,.22),transparent 30%),
+linear-gradient(135deg,#08132e,#041115 60%,#050816);z-index:-2}
+body:after{content:"";position:fixed;inset:0;background-image:linear-gradient(rgba(255,255,255,.035) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.035) 1px,transparent 1px);background-size:28px 28px;z-index:-1}
+.screen{display:none;width:100vw;height:100dvh;overflow:hidden}.screen.active{display:block}
+.toast{position:fixed;top:18px;left:16px;right:16px;background:rgba(7,13,27,.94);border:1px solid rgba(0,245,212,.3);border-radius:16px;padding:14px;z-index:100;transform:translateY(-140%);transition:.3s;box-shadow:0 20px 55px #0009}.toast.show{transform:translateY(0)}
+.top{position:absolute;top:max(16px,env(safe-area-inset-top));left:26px;right:26px;display:flex;justify-content:space-between;align-items:center;color:#dce5f4;font-size:18px;z-index:5}.shield{font-size:30px;color:#00f5d4;text-shadow:0 0 18px #00f5d4}
+.calc{height:100dvh;padding:calc(env(safe-area-inset-top) + 85px) 22px 22px;display:flex;flex-direction:column;justify-content:flex-end}
+.display{min-height:145px;display:flex;align-items:flex-end;justify-content:flex-end;text-align:right;font-size:clamp(55px,18vw,86px);font-weight:300;letter-spacing:-3px;padding:0 10px 6px;word-break:break-all;text-shadow:0 0 18px rgba(255,255,255,.18)}
+.keys{display:grid;grid-template-columns:repeat(4,1fr);gap:15px;padding-bottom:env(safe-area-inset-bottom)}
+.key{height:clamp(70px,17vw,86px);border:0;border-radius:999px;background:linear-gradient(145deg,#20293a,#0d1422);color:#fff;font-size:clamp(28px,8vw,40px);box-shadow:8px 13px 28px rgba(0,0,0,.45),inset 0 2px 2px rgba(255,255,255,.08)}
+.key:active{transform:scale(.96)}.op{background:linear-gradient(145deg,#ffb020,#ff8700)}.red{background:linear-gradient(145deg,#ff416c,#b91d43)}.small{font-size:30px}
+.setupWrap{height:100dvh;display:flex;align-items:center;padding:24px}.box{width:100%;border-radius:28px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.14);padding:24px;backdrop-filter:blur(18px);box-shadow:0 25px 70px #0008}
+.box h1{margin:0 0 10px;font-size:36px}.box h1 span,.vault h1 span{color:#00f5d4}input,textarea{width:100%;border:1px solid rgba(255,255,255,.14);background:rgba(255,255,255,.08);color:white;border-radius:16px;padding:15px;font-size:16px;margin:9px 0}textarea{min-height:110px;resize:vertical}.primary,.secondary{width:100%;border:0;border-radius:18px;padding:16px;font-weight:800;font-size:16px}.primary{background:linear-gradient(135deg,#00f5d4,#25ff91);color:#03110d}.secondary{background:rgba(255,255,255,.1);color:#fff;border:1px solid rgba(255,255,255,.14);margin-top:10px}
+.vaultTop{position:fixed;top:max(15px,env(safe-area-inset-top));left:18px;right:18px;height:48px;display:flex;justify-content:space-between;align-items:center;z-index:8}.appTitle{font-size:18px;font-weight:800}.iconBtn{width:52px;height:52px;border-radius:20px;border:1px solid rgba(255,255,255,.13);background:rgba(255,255,255,.08);color:#00f5d4;font-size:22px;backdrop-filter:blur(18px)}
+.vault{height:100dvh;overflow-y:auto;padding:calc(env(safe-area-inset-top) + 62px) 18px calc(env(safe-area-inset-bottom) + 95px)}.vault::-webkit-scrollbar{display:none}.vault h1{font-size:42px;margin:15px 0 20px}
+.cards{display:grid;grid-template-columns:1fr 1fr;gap:14px}.card{min-height:140px;border-radius:24px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.11);padding:22px;box-shadow:0 18px 55px #0007}.card .ico{font-size:33px;color:#00f5d4}.card h3{margin:16px 0 5px;color:#ccd4e0}.card b{font-size:32px}
+.section{display:none;margin-top:18px}.section.active{display:block}.empty{color:#9aa4b2;padding:15px 2px}.item{display:flex;align-items:center;gap:12px;background:rgba(255,255,255,.075);border:1px solid rgba(255,255,255,.1);border-radius:19px;padding:12px;margin-bottom:12px}.thumb{width:62px;height:62px;border-radius:16px;object-fit:cover;background:rgba(0,245,212,.14);display:grid;place-items:center;font-size:28px;color:#00f5d4;flex:0 0 auto}.info{flex:1;min-width:0}.title{font-weight:800;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.sub{font-size:12px;color:#a0a9b7;margin-top:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.mini{border:0;border-radius:13px;padding:10px 11px;color:#fff;background:rgba(255,255,255,.12)}.del{background:rgba(255,65,108,.2);color:#ff88a1}
+.nav{position:fixed;left:12px;right:12px;bottom:calc(env(safe-area-inset-bottom) + 10px);height:76px;border-radius:25px;background:rgba(5,8,22,.82);border:1px solid rgba(255,255,255,.11);display:grid;grid-template-columns:repeat(5,1fr);gap:5px;padding:8px;z-index:9;backdrop-filter:blur(18px)}.nav button{border:0;background:transparent;color:#8894a7;border-radius:18px;font-size:11px}.nav i{display:block;font-style:normal;font-size:22px}.nav button.active{background:rgba(0,245,212,.14);color:#00f5d4}
+.fab{position:fixed;right:26px;bottom:calc(env(safe-area-inset-bottom) + 100px);width:72px;height:72px;border:0;border-radius:26px;background:linear-gradient(145deg,#35ff9d,#0fc985);font-size:40px;color:#03110d;box-shadow:0 0 34px rgba(0,245,160,.45);z-index:8}
+.modal{position:fixed;inset:0;background:rgba(0,0,0,.72);display:none;align-items:flex-end;z-index:30;backdrop-filter:blur(8px)}.modal.show{display:flex}.sheet{width:100%;background:rgba(11,16,32,.98);border-radius:28px 28px 0 0;padding:22px;border:1px solid rgba(255,255,255,.13)}.sheet h2{margin:0 0 12px}
+.viewer{position:fixed;inset:0;background:#000;display:none;align-items:center;justify-content:center;z-index:90}.viewer.show{display:flex}.viewer img,.viewer video{max-width:100%;max-height:100%;object-fit:contain}.close{position:absolute;top:18px;right:18px;width:56px;height:56px;border-radius:20px;border:1px solid rgba(255,255,255,.15);background:#111;color:#00f5d4;font-size:31px;z-index:92}
+@media(min-width:700px){.calc,.vault,.setupWrap{max-width:520px;margin:0 auto}.nav{left:50%;right:auto;transform:translateX(-50%);width:min(492px,calc(100vw - 24px))}.fab{right:calc((100vw - min(520px,100vw))/2 + 26px)}}
+</style>
+</head>
+<body>
+<div id="toast" class="toast"></div>
+
+<section id="setup" class="screen">
+ <div class="setupWrap"><div class="box">
+  <h1>Create <span>Vault</span></h1>
+  <p style="color:#9aa4b2">First time password setup. Data stays only on this device.</p>
+  <input id="p1" type="password" placeholder="Create password">
+  <input id="p2" type="password" placeholder="Confirm password">
+  <button class="primary" onclick="createPass()">Create Vault</button>
+ </div></div>
+</section>
+
+<section id="calculator" class="screen">
+ <div class="top"><span>9:41</span><span class="shield">🛡</span></div>
+ <div class="calc">
+  <div id="display" class="display">0</div>
+  <div class="keys">
+   <button class="key red" onclick="clearCalc()">AC</button><button class="key small" onclick="toggleSign()">+/−</button><button class="key small" onclick="pressOp('%')">%</button><button class="key op" onclick="pressOp('/')">÷</button>
+   <button class="key" onclick="pressNum('7')">7</button><button class="key" onclick="pressNum('8')">8</button><button class="key" onclick="pressNum('9')">9</button><button class="key op" onclick="pressOp('*')">×</button>
+   <button class="key" onclick="pressNum('4')">4</button><button class="key" onclick="pressNum('5')">5</button><button class="key" onclick="pressNum('6')">6</button><button class="key op" onclick="pressOp('-')">−</button>
+   <button class="key" onclick="pressNum('1')">1</button><button class="key" onclick="pressNum('2')">2</button><button class="key" onclick="pressNum('3')">3</button><button class="key op" onclick="pressOp('+')">+</button>
+   <button class="key small" onclick="backspace()">⌫</button><button class="key" onclick="pressNum('0')">0</button><button class="key" onclick="pressNum('.')">.</button><button class="key op" onclick="equals()">=</button>
+  </div>
+ </div>
+</section>
+
+<section id="vault" class="screen">
+ <div class="vaultTop"><div class="appTitle">HideU Calculator Lock 3D</div><button class="iconBtn" onclick="lockVault()">🧮</button></div>
+ <div class="vault">
+  <h1>My <span>Vault</span></h1>
+  <div class="cards">
+   <div class="card" onclick="tab('notes')"><div class="ico">📝</div><h3>Notes</h3><b id="notesCount">0</b></div>
+   <div class="card" onclick="tab('passwords')"><div class="ico">🔑</div><h3>Passwords</h3><b id="passwordsCount">0</b></div>
+   <div class="card" onclick="tab('gallery')"><div class="ico">🖼</div><h3>Gallery</h3><b id="galleryCount">0</b></div>
+   <div class="card" onclick="tab('videos')"><div class="ico">🎥</div><h3>Videos</h3><b id="videosCount">0</b></div>
+  </div>
+  <div id="notes" class="section active"><div id="notesList"></div></div>
+  <div id="passwords" class="section"><div id="passwordsList"></div></div>
+  <div id="gallery" class="section"><div id="galleryList"></div></div>
+  <div id="videos" class="section"><div id="videosList"></div></div>
+  <div id="files" class="section"><div id="filesList"></div></div>
+  <p style="color:#c4ad75;background:rgba(255,159,28,.08);border:1px solid rgba(255,159,28,.2);border-radius:20px;padding:14px">Privacy: media/files save in IndexedDB on this device. No cloud upload.</p>
+ </div>
+ <button class="fab" onclick="openAdd()">+</button>
+ <div class="nav">
+  <button class="active" data-tab="notes" onclick="tab('notes')"><i>📝</i>Notes</button>
+  <button data-tab="passwords" onclick="tab('passwords')"><i>🔑</i>Passwords</button>
+  <button data-tab="gallery" onclick="tab('gallery')"><i>🖼</i>Gallery</button>
+  <button data-tab="videos" onclick="tab('videos')"><i>🎥</i>Videos</button>
+  <button data-tab="files" onclick="tab('files')"><i>📁</i>Files</button>
+ </div>
+</section>
+
+<div id="modal" class="modal"><div class="sheet">
+ <h2 id="modalTitle">Add</h2>
+ <div id="noteBox"><input id="noteTitle" placeholder="Note title"><textarea id="noteText" placeholder="Write note"></textarea></div>
+ <div id="passBox" style="display:none"><input id="passTitle" placeholder="Account name"><input id="passUser" placeholder="Username / Email"><input id="passValue" placeholder="Password"></div>
+ <div id="fileBox" style="display:none"><input id="fileInput" type="file"><p style="color:#9aa4b2;font-size:13px">Large media uses IndexedDB Blob storage.</p></div>
+ <button class="primary" onclick="saveItem()">Save</button><button class="secondary" onclick="closeAdd()">Cancel</button>
+</div></div>
+
+<div id="viewer" class="viewer"><button class="close" onclick="closeViewer()">×</button><div id="viewerContent"></div></div>
+
+<script>
+let expr='',just=false,activeTab='notes',db=null;
+function $(id){return document.getElementById(id)}
+function toast(m){let t=$('toast');t.innerText=m;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2200)}
+function show(id){document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));$(id).classList.add('active')}
+function init(){openDB().then(loadAll);show(localStorage.getItem('vaultPassword')?'calculator':'setup');updateDisplay()}
+window.onload=init;
+function createPass(){let a=$('p1').value,b=$('p2').value;if(a.length<4)return toast('Password must be 4+ characters');if(a!==b)return toast('Passwords do not match');localStorage.setItem('vaultPassword',a);toast('Vault created');show('calculator')}
+function updateDisplay(){$('display').innerText=expr||'0'}
+function pressNum(n){if(just){expr='';just=false}let last=expr.split(/[+\-*/%]/).pop()||'';if(n==='.'&&last.includes('.'))return;if(expr==='0'&&n!=='.')expr=n;else expr+=n;updateDisplay()}
+function pressOp(o){just=false;if(!expr)return;if(/[+\-*/%]$/.test(expr))expr=expr.slice(0,-1)+o;else expr+=o;updateDisplay()}
+function clearCalc(){expr='';just=false;updateDisplay()}
+function backspace(){expr=expr.slice(0,-1);just=false;updateDisplay()}
+function toggleSign(){if(!expr)return;expr=expr.startsWith('-')?expr.slice(1):('-'+expr);updateDisplay()}
+function equals(){let pass=localStorage.getItem('vaultPassword');if(expr===pass){expr='';updateDisplay();show('vault');toast('Vault unlocked');loadAll();return}if(!expr)return toast('Wrong password');try{let safe=expr.replace(/×/g,'*').replace(/÷/g,'/');if(!/^[0-9+\-*/%.() ]+$/.test(safe))throw Error();let r=Function('"use strict";return ('+safe+')')();if(!Number.isFinite(r))throw Error();expr=String(Math.round(r*100000000)/100000000);just=true;updateDisplay()}catch(e){toast('Invalid calculation');expr='';updateDisplay()}}
+function lockVault(){clearCalc();show('calculator');toast('Calculator mode')}
+function tab(n){activeTab=n;document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'));$(n).classList.add('active');document.querySelectorAll('.nav button').forEach(b=>b.classList.toggle('active',b.dataset.tab===n));loadAll()}
+function openAdd(){$('modal').classList.add('show');$('modalTitle').innerText='Add '+activeTab;$('noteBox').style.display=activeTab==='notes'?'block':'none';$('passBox').style.display=activeTab==='passwords'?'block':'none';$('fileBox').style.display=['gallery','videos','files'].includes(activeTab)?'block':'none';$('fileInput').accept=activeTab==='gallery'?'image/*':activeTab==='videos'?'video/*':'*/*'}
+function closeAdd(){$('modal').classList.remove('show');['noteTitle','noteText','passTitle','passUser','passValue'].forEach(id=>$(id).value='');$('fileInput').value=''}
+async function saveItem(){if(activeTab==='notes'){let title=$('noteTitle').value.trim(),text=$('noteText').value.trim();if(!title||!text)return toast('Fill note fields');let a=JSON.parse(localStorage.getItem('notes')||'[]');a.unshift({id:Date.now(),title,text});localStorage.setItem('notes',JSON.stringify(a));closeAdd();toast('Note saved');loadAll();return}
+if(activeTab==='passwords'){let title=$('passTitle').value.trim(),user=$('passUser').value.trim(),pass=$('passValue').value.trim();if(!title||!pass)return toast('Fill password fields');let a=JSON.parse(localStorage.getItem('passwords')||'[]');a.unshift({id:Date.now(),title,user,pass});localStorage.setItem('passwords',JSON.stringify(a));closeAdd();toast('Password saved');loadAll();return}
+let f=$('fileInput').files[0];if(!f)return toast('Select file');await putMedia({id:Date.now(),cat:activeTab,name:f.name,type:f.type||'file',size:f.size,blob:f});closeAdd();toast('File saved');loadAll()}
+function openDB(){return new Promise((res,rej)=>{let r=indexedDB.open('HideUVaultDBStable',1);r.onupgradeneeded=e=>{let d=e.target.result;if(!d.objectStoreNames.contains('media'))d.createObjectStore('media',{keyPath:'id'})};r.onsuccess=e=>{db=e.target.result;res()};r.onerror=()=>rej(r.error)})}
+function store(m='readonly'){return db.transaction('media',m).objectStore('media')}
+function putMedia(x){return new Promise((res,rej)=>{let r=store('readwrite').put(x);r.onsuccess=res;r.onerror=()=>rej(r.error)})}
+function getMedia(){return new Promise((res,rej)=>{let r=store().getAll();r.onsuccess=()=>res(r.result||[]);r.onerror=()=>rej(r.error)})}
+function delMedia(id){return new Promise((res,rej)=>{let r=store('readwrite').delete(id);r.onsuccess=res;r.onerror=()=>rej(r.error)})}
+function bytes(n){return n>1048576?(n/1048576).toFixed(2)+' MB':n>1024?(n/1024).toFixed(1)+' KB':n+' B'}
+function safe(s){return String(s||'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]))}
+async function loadAll(){loadText('notes');loadText('passwords');if(!db)return;let m=await getMedia();renderMedia('gallery',m.filter(x=>x.cat==='gallery'));renderMedia('videos',m.filter(x=>x.cat==='videos'));renderMedia('files',m.filter(x=>x.cat==='files'));$('galleryCount').innerText=m.filter(x=>x.cat==='gallery').length;$('videosCount').innerText=m.filter(x=>x.cat==='videos').length}
+function loadText(type){let a=JSON.parse(localStorage.getItem(type)||'[]');$(type+'Count').innerText=a.length;let box=$(type+'List');box.innerHTML=a.length?'':'<div class="empty">No '+type+' yet</div>';a.forEach(x=>{let sub=type==='notes'?x.text:(x.user+' • '+x.pass);box.innerHTML+=`<div class="item"><div class="thumb">${type==='notes'?'📝':'🔑'}</div><div class="info"><div class="title">${safe(x.title)}</div><div class="sub">${safe(sub)}</div></div><button class="mini del" onclick="deleteText('${type}',${x.id})">🗑</button></div>`})}
+function deleteText(type,id){let a=JSON.parse(localStorage.getItem(type)||'[]').filter(x=>x.id!==id);localStorage.setItem(type,JSON.stringify(a));toast('Deleted');loadAll()}
+function renderMedia(cat,a){let box=$(cat+'List');box.innerHTML=a.length?'':'<div class="empty">No '+cat+' yet</div>';a.sort((x,y)=>y.id-x.id).forEach(x=>{let url=URL.createObjectURL(x.blob);let prev=(x.type||'').startsWith('image/')?`<img class="thumb" src="${url}">`:`<div class="thumb">${(x.type||'').startsWith('video/')?'▶️':'📁'}</div>`;box.innerHTML+=`<div class="item">${prev}<div class="info" onclick="openMedia(${x.id})"><div class="title">${safe(x.name)}</div><div class="sub">${bytes(x.size)}</div></div><button class="mini" onclick="openMedia(${x.id})">Open</button><button class="mini del" onclick="removeMedia(${x.id})">🗑</button></div>`})}
+async function openMedia(id){let a=await getMedia(),x=a.find(i=>i.id===id);if(!x)return toast('File not found');let url=URL.createObjectURL(x.blob),box=$('viewerContent');if((x.type||'').startsWith('image/'))box.innerHTML=`<img src="${url}">`;else if((x.type||'').startsWith('video/'))box.innerHTML=`<video src="${url}" controls autoplay playsinline preload="metadata"></video>`;else box.innerHTML=`<div style="text-align:center;padding:25px"><div style="font-size:70px">📁</div><h2>${safe(x.name)}</h2><p>${bytes(x.size)}</p><a href="${url}" download="${safe(x.name)}" style="color:#00f5d4;font-size:20px">Download</a></div>`;$('viewer').classList.add('show')}
+function closeViewer(){$('viewer').classList.remove('show');$('viewerContent').innerHTML=''}
+async function removeMedia(id){await delMedia(id);toast('Deleted');loadAll()}
+</script>
+</body>
+</html>
